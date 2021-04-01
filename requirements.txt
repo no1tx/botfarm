@@ -16,7 +16,7 @@ pydantic==1.8.1
 pytz==2021.1
 setuptools==54.2.0
 SQLAlchemy==1.4.4
-starlette==0.13.6
+starlette==0.14.2
 typing-extensions==3.7.4.3
 uvicorn==0.13.4
 yarl==1.6.3

@@ -104,7 +104,7 @@ async def stop(request: Request, name):
         async for chunk in request.stream():
             request_body += chunk
         message = json.loads(request_body)
-        if message['access_token'] == running_bots[name].access_token:
+        if message['access_token'] == running_bots[name].bot.access_token:
             running_bots[name].close()
 
 
