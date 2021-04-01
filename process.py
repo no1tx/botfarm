@@ -117,7 +117,7 @@ async def run_bot_farm():
 
 
 def web_app(loop):
-    config = Config(app=app, loop=loop, port=8001)
+    config = Config(app=app, loop=loop, port=8001, host='0.0.0.0')
     server = Server(config)
     return server
 
