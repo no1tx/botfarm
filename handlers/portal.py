@@ -3,8 +3,7 @@ import json
 from aiogram import types, Bot
 from aiogram.utils.markdown import escape_md
 from aiohttp import ClientSession
-import portal_params
-
+from handlers.portal_params import bot_name, avatar_url, discord_webhook_url
 
 LOG_FORMAT = '%(asctime)s,%(msecs)d %(levelname)s: %(message)s'
 LOGGER = logging.getLogger(__name__)
@@ -34,10 +33,10 @@ class custom_handler:
                                                          )
         embeds = dict(title="Читать пост на портале", description=f"{message['short_text']})",
                       url=message['link'], author=dict(name=message['author']))
-        discord_data = json.dumps({"username": portal_params.bot_name,
-                                   "avatar_url": portal_params.avatar_url, "embeds": [embeds]})
+        discord_data = json.dumps({"username": bot_name,
+                                   "avatar_url": avatar_url, "embeds": [embeds]})
         async with ClientSession() as session:
-            async with session.post(portal_params.discord_webhook_url, data=discord_data,
+            async with session.post(discord_webhook_url, data=discord_data,
                                     headers={'Content-Type': 'application/json'}) as hook_response:
                 LOGGER.log(logging.INFO, msg="Done POST to Discord Portal Webhook, status: %s" % hook_response.status)
         return response
