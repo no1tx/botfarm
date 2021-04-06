@@ -1,6 +1,7 @@
 import logging
 import json
 import importlib
+import asyncio
 from datetime import datetime
 from aiogram import Bot, Dispatcher, types
 from aiohttp import ClientSession, BasicAuth
@@ -61,8 +62,15 @@ class TelegramBot(object):
                     LOGGER.log(logging.INFO, msg="Failed to send message, because %s" % e)
                     return dict(success=False, detail=e, teapot=True)
         else:
-            LOGGER.log(logging.INFO, msg="Failed to send message, because user is not started bot")
-            return dict(success=False, detail="not started by user, cannot send")
+            if self.handler.can_send:
+                try:
+                    result: types.Message = await self.handler.send_to(self.Bot, message)
+                    return dict(success=True, message_id=result.message_id)
+                except Exception as e:
+                    return dict(success=False, detail=str(e))
+            else:
+                LOGGER.log(logging.INFO, msg="Failed to send message, because user is not started bot")
+                return dict(success=False, detail="not started by user, cannot send")
 
     async def edit(self, message):
         LOGGER.log(logging.INFO, msg="Request to edit message %s in chat %s" % (message['message_id'],
@@ -121,7 +129,7 @@ class TelegramBot(object):
         await self.Dispatcher.start_polling()
 
     async def close(self):
-        await self.Bot.close()
+        await self.Bot.close_bot()
         self.bot.delete()
 
 

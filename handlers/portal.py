@@ -1,5 +1,15 @@
+import logging
+import json
 from aiogram import types, Bot
 from aiogram.utils.markdown import escape_md
+from aiohttp import ClientSession
+import portal_params
+
+
+LOG_FORMAT = '%(asctime)s,%(msecs)d %(levelname)s: %(message)s'
+LOGGER = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
+
 
 class custom_handler:
     can_send = True
@@ -22,6 +32,13 @@ class custom_handler:
                                                               f"Читать далее: {escape_md(message['link'])}",
                                                          parse_mode=types.ParseMode.MARKDOWN_V2
                                                          )
+        embeds = dict(title="Читать пост на портале", description=f"{message['short_text']})",
+                      url=message['link'], author=dict(name=message['author']))
+        discord_data = json.dumps({"username": "Ебалай Лама", "embeds": [embeds]})
+        async with ClientSession() as session:
+            async with session.post(portal_params.discord_webhook_url, data=discord_data,
+                                    headers={'Content-Type': 'application/json'}) as hook_response:
+                LOGGER.log(logging.INFO, msg="Done POST to Discord Portal Webhook, status: %s" % hook_response.status)
         return response
 
     @staticmethod

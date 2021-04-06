@@ -122,7 +122,7 @@ async def stop(request: Request, name):
             request_body += chunk
         message = json.loads(request_body)
         if message['access_token'] == running_bots[name].bot.access_token:
-            running_bots[name].close()
+            await running_bots[name].close()
             del running_bots[name]
 
 
