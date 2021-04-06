@@ -34,7 +34,8 @@ class custom_handler:
                                                          )
         embeds = dict(title="Читать пост на портале", description=f"{message['short_text']})",
                       url=message['link'], author=dict(name=message['author']))
-        discord_data = json.dumps({"username": "Ебалай Лама", "embeds": [embeds]})
+        discord_data = json.dumps({"username": portal_params.bot_name,
+                                   "avatar_url": portal_params.avatar_url, "embeds": [embeds]})
         async with ClientSession() as session:
             async with session.post(portal_params.discord_webhook_url, data=discord_data,
                                     headers={'Content-Type': 'application/json'}) as hook_response:
