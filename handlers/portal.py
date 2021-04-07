@@ -26,7 +26,7 @@ class custom_handler:
         response: types.Message = await bot.send_message(message['chat_id'],
                                                          text=f"*{message['author']}* поделился\\(\\-лась\\) новостью\\!\n"
                                                               f"\n"
-                                                              f"{escape_md(message['short_text'].replace('&nbsp;', ''))}\n"
+                                                              f"{escape_md(message['short_text']).replace('&nbsp;', '')}\n"
                                                               f"\n"
                                                               f"Читать далее: {escape_md(message['link'])}",
                                                          parse_mode=types.ParseMode.MARKDOWN_V2
