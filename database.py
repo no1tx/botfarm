@@ -78,6 +78,7 @@ class Bot(Model):
         try:
             session.query(Bot).filter_by(token=self.bot.token).delete()
             session.commit()
+            del self
         except Exception as e:
             session.rollback()
             LOGGER.log(logging.INFO, msg="Failed to remove bot because %s" % e)
@@ -157,6 +158,7 @@ class User(Model):
         try:
             session.query(User).filter_by(user_id=self.user_id).delete()
             session.commit()
+            del self
         except Exception as e:
             session.rollback()
             LOGGER.log(logging.INFO, msg="Failed to remove user because %s" % e)
