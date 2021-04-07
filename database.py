@@ -74,6 +74,14 @@ class Bot(Model):
             session.rollback()
             LOGGER.log(logging.INFO, msg="Failed to save bot in database %s" % e)
 
+    def delete(self):
+        try:
+            session.query(Bot).filter_by(token=self.bot.token).delete()
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            LOGGER.log(logging.INFO, msg="Failed to remove bot because %s" % e)
+
     @staticmethod
     def get_all():
         try:
@@ -144,6 +152,14 @@ class User(Model):
         except Exception as e:
             session.rollback()
             LOGGER.log(logging.INFO, msg="Failed to save new message because %s" % e)
+
+    def delete(self):
+        try:
+            session.query(User).filter_by(user_id=self.user_id).delete()
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            LOGGER.log(logging.INFO, msg="Failed to remove user because %s" % e)
 
     @staticmethod
     def get(user_id):
