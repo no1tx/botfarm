@@ -38,13 +38,14 @@ class TelegramBot(object):
     async def send_to(self, message, as_html=False, as_markdown_v2=False):
         user = User.get(message['chat_id'])
         if int(message['chat_id']) > 0 and user or int(message['chat_id']) < 0:
-            if self.handler:
-                if self.handler.can_send:
-                    try:
-                        result: types.Message = await self.handler.send_to(self.Bot, message)
-                        return dict(success=True, message_id=result.message_id)
-                    except Exception as e:
-                        return dict(success=False, detail=str(e))
+            if hasattr(self, 'handler'):
+                if hasattr(self, 'handler'):
+                    if self.handler.can_send:
+                        try:
+                            result: types.Message = await self.handler.send_to(self.Bot, message)
+                            return dict(success=True, message_id=result.message_id)
+                        except Exception as e:
+                            return dict(success=False, detail=str(e))
             else:
                 try:
                     if as_html:
@@ -63,12 +64,13 @@ class TelegramBot(object):
                     LOGGER.log(logging.INFO, msg="Failed to send message, because %s" % e)
                     return dict(success=False, detail=e, teapot=True)
         else:
-            if self.handler.can_send:
-                try:
-                    result: types.Message = await self.handler.send_to(self.Bot, message)
-                    return dict(success=True, message_id=result.message_id)
-                except Exception as e:
-                    return dict(success=False, detail=str(e))
+            if hasattr(self, 'handler'):
+                if self.handler.can_send:
+                    try:
+                        result: types.Message = await self.handler.send_to(self.Bot, message)
+                        return dict(success=True, message_id=result.message_id)
+                    except Exception as e:
+                        return dict(success=False, detail=str(e))
             else:
                 LOGGER.log(logging.INFO, msg="Failed to send message, because user is not started bot")
                 return dict(success=False, detail="not started by user, cannot send")
