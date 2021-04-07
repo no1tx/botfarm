@@ -38,12 +38,13 @@ class TelegramBot(object):
     async def send_to(self, message, as_html=False, as_markdown_v2=False):
         user = User.get(message['chat_id'])
         if int(message['chat_id']) > 0 and user or int(message['chat_id']) < 0:
-            if self.handler.can_send:
-                try:
-                    result: types.Message = await self.handler.send_to(self.Bot, message)
-                    return dict(success=True, message_id=result.message_id)
-                except Exception as e:
-                    return dict(success=False, detail=str(e))
+            if self.handler:
+                if self.handler.can_send:
+                    try:
+                        result: types.Message = await self.handler.send_to(self.Bot, message)
+                        return dict(success=True, message_id=result.message_id)
+                    except Exception as e:
+                        return dict(success=False, detail=str(e))
             else:
                 try:
                     if as_html:
