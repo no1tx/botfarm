@@ -55,7 +55,7 @@ class TelegramBot(object):
                         result: types.Message = await self.Bot.send_message(chat_id=message['chat_id'],
                                                                             text=message['body'],
                                                                             parse_mode=types.ParseMode.MARKDOWN_V2)
-                    elif message['photo_link']:
+                    elif 'photo_link' in message:
                         link = message['photo_link']
                         if as_html:
                             result: types.Message = await self.Bot.send_photo(chat_id=message['chat_id'],
