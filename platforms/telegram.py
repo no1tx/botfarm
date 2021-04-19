@@ -39,13 +39,12 @@ class TelegramBot(object):
         user = User.get(message['chat_id'])
         if int(message['chat_id']) > 0 and user or int(message['chat_id']) < 0:
             if hasattr(self, 'handler'):
-                if hasattr(self, 'handler'):
-                    if self.handler.can_send:
-                        try:
-                            result: types.Message = await self.handler.send_to(self.Bot, message)
-                            return dict(success=True, message_id=result.message_id)
-                        except Exception as e:
-                            return dict(success=False, detail=str(e))
+                if self.handler.can_send:
+                    try:
+                        result: types.Message = await self.handler.send_to(self.Bot, message)
+                        return dict(success=True, message_id=result.message_id)
+                    except Exception as e:
+                        return dict(success=False, detail=str(e))
             else:
                 try:
                     if as_html:
@@ -56,6 +55,23 @@ class TelegramBot(object):
                         result: types.Message = await self.Bot.send_message(chat_id=message['chat_id'],
                                                                             text=message['body'],
                                                                             parse_mode=types.ParseMode.MARKDOWN_V2)
+                    elif message['photo_link']:
+                        link = message['photo_link']
+                        if as_html:
+                            result: types.Message = await self.Bot.send_photo(chat_id=message['chat_id'],
+                                                                              photo=types.InputFile.from_url(link),
+                                                                              caption=message['body'],
+                                                                              parse_mode=types.ParseMode.HTML)
+                        elif as_markdown_v2:
+                            result: types.Message = await self.Bot.send_photo(chat_id=message['chat_id'],
+                                                                              photo=types.InputFile.from_url(link),
+                                                                              caption=message['body'],
+                                                                              parse_mode=types.ParseMode.MARKDOWN_V2)
+                        else:
+                            result: types.Message = await self.Bot.send_photo(chat_id=message['chat_id'],
+                                                                              photo=types.InputFile.from_url(link),
+                                                                              caption=message['body'])
+
                     else:
                         result: types.Message = await self.Bot.send_message(chat_id=message['chat_id'],
                                                                             text=message['body'])
@@ -63,7 +79,7 @@ class TelegramBot(object):
                 except Exception as e:
                     LOGGER.log(logging.INFO, msg="Failed to send message, because %s" % e)
                     return dict(success=False, detail=e, teapot=True)
-        else:
+        else:  # Обход проверки пользователя и его регистрации для стравления в обработчик бота (если таковой имеется)
             if hasattr(self, 'handler'):
                 if self.handler.can_send:
                     try:
@@ -72,8 +88,8 @@ class TelegramBot(object):
                     except Exception as e:
                         return dict(success=False, detail=str(e))
             else:
-                LOGGER.log(logging.INFO, msg="Failed to send message, because user is not started bot")
-                return dict(success=False, detail="not started by user, cannot send")
+                LOGGER.log(logging.INFO, msg="Failed to send message, because broken bot (check handler)")
+                return dict(success=False, detail="broken")
 
     async def edit(self, message):
         LOGGER.log(logging.INFO, msg="Request to edit message %s in chat %s" % (message['message_id'],
