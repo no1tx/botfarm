@@ -1,7 +1,6 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, BackgroundTasks
 from fastapi.encoders import jsonable_encoder
 from database import Bot
-import traceback
 import json
 import logging
 import importlib
@@ -78,7 +77,7 @@ async def add_bot(request: Request):
 
 
 @app.post('/api/bot/{name}/send')
-async def send_message(request: Request, name):
+async def send_message(request: Request, background: BackgroundTasks, name):
     if not name:
         raise HTTPException(status_code=400, detail='You need to provide bot name')
     else:
@@ -89,7 +88,7 @@ async def send_message(request: Request, name):
         if message['access_token'] == running_bots[name].bot.access_token:
             if message['chat_id']:
                 if 'asap' in message:
-                    await running_bots[name].send_to(message)
+                    background.add_task(running_bots[name].send_to, message)
                     return 'ok'
                 else:
                     try:
