@@ -97,7 +97,7 @@ async def send_message(request: Request, name):
                         return jsonable_encoder(result)
                     except Exception as e:
                         LOGGER.log(logging.INFO, msg='Failed to process send request because %s' % e)
-                        return HTTPException(status_code=500, detail=jsonable_encoder(e))
+                        raise HTTPException(status_code=500, detail=jsonable_encoder(e))
         else:
             raise HTTPException(status_code=403, detail="Access denied.")
 
