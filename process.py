@@ -88,12 +88,16 @@ async def send_message(request: Request, name):
         message = json.loads(request_body)
         if message['access_token'] == running_bots[name].bot.access_token:
             if message['chat_id']:
-                try:
-                    result = await running_bots[name].send_to(message)
-                    return jsonable_encoder(result)
-                except Exception as e:
-                    LOGGER.log(logging.INFO, msg='Failed to process send request because %s' % e)
-                    return HTTPException(status_code=500, detail=jsonable_encoder(e))
+                if 'asap' in message:
+                    await running_bots[name].send_to(message)
+                    return 'ok'
+                else:
+                    try:
+                        result = await running_bots[name].send_to(message)
+                        return jsonable_encoder(result)
+                    except Exception as e:
+                        LOGGER.log(logging.INFO, msg='Failed to process send request because %s' % e)
+                        return HTTPException(status_code=500, detail=jsonable_encoder(e))
         else:
             raise HTTPException(status_code=403, detail="Access denied.")
 
