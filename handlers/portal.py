@@ -50,6 +50,6 @@ class custom_handler:
                                                                    f"{escape_md(message['short_text'])}\n"
                                                                    f"\n"
                                                                    f"Читать далее: {escape_md(message['link'])}\n"
-                                                                   f"\\❤ Этот пост понравился {message['likes']} людям\\.",
+                                                                   f"❤ Этот пост понравился {message['likes']} людям\\.",
                                                               parse_mode=types.ParseMode.MARKDOWN_V2)
         return response
