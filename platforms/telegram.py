@@ -2,6 +2,7 @@ import logging
 import json
 import importlib
 import asyncio
+import base64
 from datetime import datetime
 from aiogram import Bot, Dispatcher, types
 from aiohttp import ClientSession, BasicAuth
@@ -71,7 +72,22 @@ class TelegramBot(object):
                             result: types.Message = await self.Bot.send_photo(chat_id=message['chat_id'],
                                                                               photo=types.InputFile.from_url(link),
                                                                               caption=message['body'])
-
+                    elif not 'photo_link' in message and 'photo' in message:
+                        file = types.InputFile(base64.decode(message['photo']), filename='photo.jpg')
+                        if as_html:
+                            result: types.Message = await self.Bot.send_photo(chat_id=message['chat_id'],
+                                                                              photo=file,
+                                                                              caption=message['body'],
+                                                                              parse_mode=types.ParseMode.HTML)
+                        elif as_markdown_v2:
+                            result: types.Message = await self.Bot.send_photo(chat_id=message['chat_id'],
+                                                                              photo=file,
+                                                                              caption=message['body'],
+                                                                              parse_mode=types.ParseMode.MARKDOWN_V2)
+                        else:
+                            result: types.Message = await self.Bot.send_photo(chat_id=message['chat_id'],
+                                                                              photo=file,
+                                                                              caption=message['body'])
                     else:
                         result: types.Message = await self.Bot.send_message(chat_id=message['chat_id'],
                                                                             text=message['body'])
