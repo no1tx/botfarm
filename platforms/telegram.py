@@ -73,7 +73,7 @@ class TelegramBot(object):
                                                                               photo=types.InputFile.from_url(link),
                                                                               caption=message['body'])
                     elif not 'photo_link' in message and 'photo' in message:
-                        file = types.InputFile(base64.decode(message['photo']), filename='photo.jpg')
+                        file = types.InputFile(base64.b64decode(message['photo']), filename='photo.jpg')
                         if as_html:
                             result: types.Message = await self.Bot.send_photo(chat_id=message['chat_id'],
                                                                               photo=file,
