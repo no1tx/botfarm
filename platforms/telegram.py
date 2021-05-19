@@ -72,7 +72,7 @@ class TelegramBot(object):
                             result: types.Message = await self.Bot.send_photo(chat_id=message['chat_id'],
                                                                               photo=types.InputFile.from_url(link),
                                                                               caption=message['body'])
-                    elif not 'photo_link' in message and 'photo' in message:
+                    elif 'photo' in message:
                         file = types.InputFile(base64.b64decode(message['photo']), filename='photo.jpg')
                         if as_html:
                             result: types.Message = await self.Bot.send_photo(chat_id=message['chat_id'],
@@ -111,8 +111,11 @@ class TelegramBot(object):
         LOGGER.log(logging.INFO, msg="Request to edit message %s in chat %s" % (message['message_id'],
                                                                                 message['chat_id']))
         if self.bot.custom_handler:
-            result = await self.handler.edit(self.Bot, message)
-            return dict(success=True, message_id=result.message_id)
+            try:
+                result = await self.handler.edit(self.Bot, message)
+                return dict(success=True, message_id=result.message_id)
+            except Exception as e:
+                return dict(success=False, detail=e.args)
         else:
             try:
                 result: types.Message = await self.Bot.edit_message_text(chat_id=message['chat_id'],
@@ -120,7 +123,7 @@ class TelegramBot(object):
                                                                          text=message['body'])
                 return dict(success=True, message_id=result.message_id)
             except Exception as e:
-                return dict(success=False, detail=str(e))
+                return dict(success=False, detail=e.args)
 
     async def start_handler(self, event: types.Message):
         LOGGER.log(logging.INFO, msg='Got start command from %s:%s' % (self.bot.platform, event.from_user.username))

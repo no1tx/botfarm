@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, HTTPException, BackgroundTasks
 from fastapi.encoders import jsonable_encoder
 from database import Bot
 import json
+from json import JSONDecodeError
 import logging
 import importlib
 import asyncio
@@ -73,7 +74,7 @@ async def add_bot(request: Request):
         raise HTTPException(status_code=400, detail=dict(need_value=e.args))
     except Exception as e:
         LOGGER.log(logging.INFO, msg="Failed to start new bot because %s" % e)
-        raise HTTPException(status_code=500)
+        raise HTTPException(status_code=500, detail=dict(need_value=e.args))
 
 
 @app.post('/api/bot/{name}/send')
@@ -84,7 +85,11 @@ async def send_message(request: Request, background: BackgroundTasks, name):
         request_body = b''
         async for chunk in request.stream():
             request_body += chunk
-        message = json.loads(request_body)
+        try:
+            message = json.loads(request_body)
+        except JSONDecodeError as e:
+            LOGGER.log(logging.ERROR, msg="Got wrong JSON request from client, refusing processing")
+            raise HTTPException(status_code=400, detail=dict(e.args))
         if message['access_token'] == running_bots[name].bot.access_token:
             if message['chat_id']:
                 if 'asap' in message:
