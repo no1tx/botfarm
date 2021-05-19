@@ -23,14 +23,22 @@ class custom_handler:
 
     @staticmethod
     async def send_to(bot: Bot, message):
-        response: types.Message = await bot.send_message(message['chat_id'],
-                                                         text=f"*{message['author']}* поделился\\(\\-лась\\) новостью\\!\n"
-                                                              f"\n"
-                                                              f"{escape_md(message['short_text']).replace('&nbsp;', '')}\n"
-                                                              f"\n"
-                                                              f"Читать далее: {escape_md(message['link'])}",
-                                                         parse_mode=types.ParseMode.MARKDOWN_V2
-                                                         )
+        if 'photo_link' in message:
+            response: types.Message = await bot.send_photo(chat_id=message['chat_id'],
+                                                           photo=types.InputFile.from_url(message['photo_link']),
+                                                           caption=f"{escape_md(message['short_text']).replace('&nbsp;', '')}\n"
+                                                                   f"Читать далее: {escape_md(message['link'])}"
+                                                                   f"❤ Этот пост понравился {message['likes']} людям\\.",
+                                                           parse_mode=types.ParseMode.MARKDOWN_V2)
+        else:
+            response: types.Message = await bot.send_message(message['chat_id'],
+                                                             text=f"*{message['author']}* поделился\\(\\-лась\\) новостью\\!\n"
+                                                                  f"\n"
+                                                                  f"{escape_md(message['short_text']).replace('&nbsp;', '')}\n"
+                                                                  f"\n"
+                                                                  f"Читать далее: {escape_md(message['link'])}",
+                                                             parse_mode=types.ParseMode.MARKDOWN_V2
+                                                             )
         embeds = dict(title="Читать пост на портале", description=f"{message['short_text'].replace('&nbsp;', '')})",
                       url=message['link'], author=dict(name=message['author']))
         discord_data = json.dumps({"username": bot_name,
@@ -43,14 +51,21 @@ class custom_handler:
 
     @staticmethod
     async def edit(bot: Bot, message):
-        response: types.Message = await bot.edit_message_text(chat_id=message['chat_id'],
-                                                              message_id=message['message_id'],
-                                                              text=f"*{message['author']}* поделился\\(\\-лась\\) новостью\\!\n"
-                                                                   f"\n"
-                                                                   f"{escape_md(message['short_text'])}\n"
-                                                                   f"\n"
-                                                                   f"Читать далее: {escape_md(message['link'])}\n"
-                                                                   f"\n"
-                                                                   f"❤ Этот пост понравился {message['likes']} людям\\.",
-                                                              parse_mode=types.ParseMode.MARKDOWN_V2)
+        if 'photo_link' in message:
+            response: types.Message = await bot.edit_message_caption(chat_id=message['chat_id'],
+                                                           caption=f"{escape_md(message['short_text']).replace('&nbsp;', '')}\n"
+                                                            f"Читать далее: {escape_md(message['link'])}"
+                                                            f"❤ Этот пост понравился {message['likes']} людям\\.",
+                                                            parse_mode=types.ParseMode.MARKDOWN_V2)
+        else:
+            response: types.Message = await bot.edit_message_text(chat_id=message['chat_id'],
+                                                                  message_id=message['message_id'],
+                                                                  text=f"*{message['author']}* поделился\\(\\-лась\\) новостью\\!\n"
+                                                                       f"\n"
+                                                                       f"{escape_md(message['short_text'])}\n"
+                                                                       f"\n"
+                                                                       f"Читать далее: {escape_md(message['link'])}\n"
+                                                                       f"\n"
+                                                                       f"❤ Этот пост понравился {message['likes']} людям\\.",
+                                                                  parse_mode=types.ParseMode.MARKDOWN_V2)
         return response
